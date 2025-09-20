@@ -31,11 +31,9 @@ public class TransferPage {
         return new DashboardPage();
 
     }
-    public void errorLimit(){
-        $(errorMessage).should(Condition.exactText("Выполнена попытка перевода суммы, превышающей остаток на карте списания"));
-    }
-    public void invalidCard(){
-        $(errorMessage).should(Condition.text("Ошибка! Перевод на одну и ту же карту невозможен"));
+
+    public void checkErrorMessage(String errorText) {
+        $(errorMessage).should(Condition.exactText(errorText));
     }
 
 

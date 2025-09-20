@@ -12,6 +12,14 @@ public class DataHelper {
         return new AuthInfo("vasya", "qwerty123");
     }
 
+    public static String getTextErrorInvalidCard() {
+        return "Ошибка! Перевод на одну и ту же карту невозможен";
+    }
+
+    public static String getTextErrorLimit() {
+        return "Выполнена попытка перевода суммы, превышающей остаток на карте списания";
+
+    }
 
     public static CardInfo getFirstCardInfo() {
         return new CardInfo("5559 0000 0000 0001", "92df3f1c-a033-48e6-8390-206f6b1f56c0");

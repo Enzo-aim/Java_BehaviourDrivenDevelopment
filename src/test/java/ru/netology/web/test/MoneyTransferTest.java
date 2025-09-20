@@ -1,10 +1,7 @@
 package ru.netology.web.test;
 
 import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import ru.netology.web.data.DataHelper;
 import ru.netology.web.page.DashboardPage;
@@ -19,7 +16,7 @@ public class MoneyTransferTest {
     static void setup() {
         Configuration.browser = "firefox";
         Configuration.browserSize = "1920x1080";
-        Configuration.timeout = 10000;
+
 
         FirefoxOptions options = new FirefoxOptions();
         // Отключение менеджера паролей и всплывающих окон
@@ -49,8 +46,6 @@ public class MoneyTransferTest {
     // Тест на проверку перевод с первой на вторую
     @Test
     public void testTransferMoneyOneToTwo() {
-        // Обьявляем переменную суммы перевода
-        int amaunt = 5000;
 
         // Обьявляем переменные для хранения номера карты
         var firstCard = DataHelper.getFirstCardInfo();
@@ -61,14 +56,22 @@ public class MoneyTransferTest {
         var firstCardBalance = dashboardPage.getCardBalance(firstCard);
         var secondCardBalance = dashboardPage.getCardBalance(secondCard);
 
-        // Ожидаемый результат суммы после перевода для баланса первой и второй карты
-        var expectedFirstCardBalance = firstCardBalance - amaunt;
-        var expectedSecondCardBalance = secondCardBalance + amaunt;
+        // ВЫЧИСЛЯЕМ сумму перевода, а не задаем жестко
+        // Например, переводим половину от текущего баланса карты списания
+        // Используем Math.floorDiv для целочисленного деления и избежания дробей
+        int amount = Math.floorDiv(firstCardBalance, 2);
 
+        // Если на карте 1 или 0 рублей, тест будет бессмысленным. Добавим проверку.
+        // Assume.assumeTrue - если условие ложно, тест будет пропущен (status: skipped)
+        Assumptions.assumeTrue(amount > 0, "На карте списания недостаточно средств для перевода (баланс: " + firstCardBalance + ")");
+
+        // Ожидаемый результат суммы после перевода для баланса первой и второй карты
+        var expectedFirstCardBalance = firstCardBalance - amount;
+        var expectedSecondCardBalance = secondCardBalance + amount;
 
         // Выполняем перевод средств на указанный номер карты
         var transfer = dashboardPage.selectCardToTransfer(secondCard);
-        dashboardPage = transfer.validTransfer(String.valueOf(amaunt), firstCard);
+        dashboardPage = transfer.validTransfer(String.valueOf(amount), firstCard);
 
         // Фактический результат суммы после перевода для баланса первой и второй карты
         var actualFirstCardBalance = dashboardPage.getCardBalance(firstCard);
@@ -77,13 +80,13 @@ public class MoneyTransferTest {
         //Сравниваем Ожидаемый и Фактический результат
         Assertions.assertEquals(expectedFirstCardBalance, actualFirstCardBalance);
         Assertions.assertEquals(expectedSecondCardBalance, actualSecondCardBalance);
+
 
     }
 
     // Тест на проверку перевод со вторрой на первую
     @Test
     public void testTransferMoneyTwoToOne() {
-        int amaunt = 5000;
 
         // Обьявляем переменные для хранения номера карты
         var secondCard = DataHelper.getSecondCardInfo();
@@ -93,29 +96,37 @@ public class MoneyTransferTest {
         var secondCardBalance = dashboardPage.getCardBalance(secondCard);
         var firstCardBalance = dashboardPage.getCardBalance(firstCard);
 
+        // ВЫЧИСЛЯЕМ сумму перевода, а не задаем жестко
+        // Например, переводим половину от текущего баланса карты списания
+        // Используем Math.floorDiv для целочисленного деления и избежания дробей
+        int amount = Math.floorDiv(secondCardBalance, 2);
+
+        // Если на карте 1 или 0 рублей, тест будет бессмысленным. Добавим проверку.
+        // Assume.assumeTrue - если условие ложно, тест будет пропущен (status: skipped)
+        Assumptions.assumeTrue(amount > 0, "На карте списания недостаточно средств для перевода (баланс: " + firstCardBalance + ")");
+
         // Ожидаемый результат суммы после перевода для баланса первой и второй карты
-        var expectedFirstCardBalance = firstCardBalance + amaunt;
-        var expectedSecondCardBalance = secondCardBalance - amaunt;
+        var expectedFirstCardBalance = firstCardBalance + amount;
+        var expectedSecondCardBalance = secondCardBalance - amount;
 
         // Выполняем перевод средств на указанный номер карты
         var transfer = dashboardPage.selectCardToTransfer(firstCard);
-        dashboardPage = transfer.validTransfer(String.valueOf(amaunt), firstCard);
+        dashboardPage = transfer.validTransfer(String.valueOf(amount), firstCard);
 
         // Фактический результат суммы после перевода для баланса первой и второй карты
         var actualFirstCardBalance = dashboardPage.getCardBalance(firstCard);
         var actualSecondCardBalance = dashboardPage.getCardBalance(secondCard);
 
-
         //Сравниваем Ожидаемый и Фактический результат
         Assertions.assertEquals(expectedFirstCardBalance, actualFirstCardBalance);
         Assertions.assertEquals(expectedSecondCardBalance, actualSecondCardBalance);
+
 
     }
 
     // Тест на проверку перевод с первой на первую
     @Test
     public void testTransferMoneyOneToOne() {
-        int amaunt = 5000;
 
         // Обьявляем переменные для хранения номера карты
         var firstCard = DataHelper.getFirstCardInfo();
@@ -125,13 +136,21 @@ public class MoneyTransferTest {
         var firstCardBalance = dashboardPage.getCardBalance(firstCard);
         var secondCardBalance = dashboardPage.getCardBalance(secondCard);
 
+        // ВЫЧИСЛЯЕМ сумму перевода, а не задаем жестко
+        // Например, переводим половину от текущего баланса карты списания
+        // Используем Math.floorDiv для целочисленного деления и избежания дробей
+        int amount = Math.floorDiv(firstCardBalance, 2);
+
+        // Если на карте 1 или 0 рублей, тест будет бессмысленным. Добавим проверку.
+        // Assume.assumeTrue - если условие ложно, тест будет пропущен (status: skipped)
+        Assumptions.assumeTrue(amount > 0, "На карте списания недостаточно средств для перевода (баланс: " + firstCardBalance + ")");
 
         // Выполняем перевод средств на указанный номер карты
         var transfer = dashboardPage.selectCardToTransfer(firstCard);
-        transfer.validTransfer(String.valueOf(amaunt), firstCard);
+        transfer.validTransfer(String.valueOf(amount), firstCard);
 
         // Проверяем название ошибки после выполнения операции перевода
-        transfer.invalidCard();
+        transfer.checkErrorMessage(DataHelper.getTextErrorInvalidCard());
 
         // Фактический результат суммы после перевода для баланса первой и второй карты
         var actualFirstCardBalance = dashboardPage.getCardBalance(firstCard);
@@ -147,7 +166,6 @@ public class MoneyTransferTest {
     // Тест на проверку перевода выше лимита
     @Test
     public void testErrorTransferHighlimit() {
-        int amaunt = 50000;
 
         // Обьявляем переменные для хранения номера карты
         var firstCard = DataHelper.getFirstCardInfo();
@@ -157,13 +175,21 @@ public class MoneyTransferTest {
         var firstCardBalance = dashboardPage.getCardBalance(firstCard);
         var secondCardBalance = dashboardPage.getCardBalance(secondCard);
 
+        // ВЫЧИСЛЯЕМ сумму перевода, а не задаем жестко
+        // Например, переводим половину от текущего баланса карты списания
+        // Используем Math.floorDiv для целочисленного деления и избежания дробей
+        int amount = (Math.floorDiv(secondCardBalance, 2)) * 3;
+
+        // Если на карте 1 или 0 рублей, тест будет бессмысленным. Добавим проверку.
+        // Assume.assumeTrue - если условие ложно, тест будет пропущен (status: skipped)
+        Assumptions.assumeTrue(amount > 0, "На карте списания недостаточно средств для перевода (баланс: " + firstCardBalance + ")");
 
         // Выполняем перевод средств на указанный номер карты
         var transfer = dashboardPage.selectCardToTransfer(firstCard);
-        transfer.validTransfer(String.valueOf(amaunt), secondCard);
+        transfer.validTransfer(String.valueOf(amount), secondCard);
 
         // Проверяем название ошибки после выполнения операции перевода выше лимита баланса карты
-        transfer.errorLimit();
+        transfer.checkErrorMessage(DataHelper.getTextErrorLimit());
 
         // Фактический результат суммы после перевода для баланса первой и второй карты
         var actualFirstCardBalance = dashboardPage.getCardBalance(firstCard);
@@ -179,7 +205,6 @@ public class MoneyTransferTest {
     // тест на проверку перевода с нулевым болансом
     @Test
     public void testErrorTransferNall() {
-        int amaunt = 001;
 
         // Обьявляем переменные для хранения номера карты
         var firstCard = DataHelper.getFirstCardInfo();
@@ -189,13 +214,21 @@ public class MoneyTransferTest {
         var firstCardBalance = dashboardPage.getCardBalance(firstCard);
         var secondCardBalance = dashboardPage.getCardBalance(secondCard);
 
+        // ВЫЧИСЛЯЕМ сумму перевода, а не задаем жестко
+        // Например, переводим половину от текущего баланса карты списания
+        // Используем Math.floorDiv для целочисленного деления и избежания дробей
+        int amount = secondCardBalance - secondCardBalance + 001;
+
+        // Если на карте 1 или 0 рублей, тест будет бессмысленным. Добавим проверку.
+        // Assume.assumeTrue - если условие ложно, тест будет пропущен (status: skipped)
+        Assumptions.assumeTrue(amount > 0, "На карте списания недостаточно средств для перевода (баланс: " + firstCardBalance + ")");
 
         // Выполняем перевод средств на указанный номер карты
         var transfer = dashboardPage.selectCardToTransfer(firstCard);
-        transfer.validTransfer(String.valueOf(amaunt), secondCard);
+        transfer.validTransfer(String.valueOf(amount), secondCard);
 
         // Проверяем название ошибки после выполнения операции перевода с нулевым баланса карты
-        transfer.errorLimit();
+        transfer.checkErrorMessage(DataHelper.getTextErrorLimit());
 
         // Фактический результат суммы после перевода для баланса первой и второй карты
         var actualFirstCardBalance = dashboardPage.getCardBalance(firstCard);
